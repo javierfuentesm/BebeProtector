@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { select, arc, pie, interpolate } from "d3";
 import useResizeObserver from "../hooks/useResizeObserver";
 
-export const GaugeChart = ({ data }) => {
+export function GaugeChart({ data }) {
   const svgRef = useRef();
   const wrapperRef = useRef();
   const dimensions = useResizeObserver(wrapperRef);
@@ -20,6 +20,7 @@ export const GaugeChart = ({ data }) => {
       .sort(null);
 
     const instructions = pieGenerator(data);
+    console.log(instructions)
 
     svg
       .selectAll(".slice")
@@ -55,4 +56,4 @@ export const GaugeChart = ({ data }) => {
       <svg ref={svgRef}></svg>
     </div>
   );
-};
+}

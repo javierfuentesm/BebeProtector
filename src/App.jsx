@@ -45,6 +45,7 @@ const App = () => {
 
     videoRef.current.srcObject = null;
   };
+
   useInterval(() => {
     if (classifier && shouldClassify) {
       classifier.classify(videoRef.current, (error, results) => {
@@ -62,7 +63,9 @@ const App = () => {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>BebeProtector</p>
-
+        <small>
+          [{gaugeData[0].toFixed(2)}, {gaugeData[1].toFixed(2)}]
+        </small>
         <GaugeChart data={gaugeData} />
 
         <button onClick={() => setShouldClassify(!shouldClassify)}>
