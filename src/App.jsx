@@ -1,17 +1,16 @@
-import React, { useRef, useEffect,useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import ml5 from "ml5";
 import useInterval from "./hooks/useInterval";
+import { GaugeChart } from "./components/GaugeChart";
 
 let classifier;
 
-function App() {
+const App = () => {
   const videoRef = useRef(null);
   const [shouldClassify, setShouldClassify] = useState(false);
   const [gaugeData, setGaugeData] = useState([0.5, 0.5]);
-
-
 
   useEffect(() => {
     startVideo();
@@ -21,7 +20,7 @@ function App() {
     };
   }, []);
 
-  const startVideo =  () => {
+  const startVideo = () => {
     classifier = ml5.imageClassifier("./my-model/model.json", () => {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices
@@ -38,8 +37,8 @@ function App() {
       let stream = videoRef.current.srcObject;
       let tracks = stream.getTracks();
 
-      for (var i = 0; i < tracks.length; i++) {
-        var track = tracks[i];
+      for (let i = 0; i < tracks.length; i++) {
+        const track = tracks[i];
         track.stop();
       }
     }
@@ -54,8 +53,7 @@ function App() {
           return;
         }
         results.sort((a, b) => b.label.localeCompare(a.label));
-       console.log(results.sort((a, b) => b.label.localeCompare(a.label)))
-        setGaugeData(results.map(entry => entry.confidence));
+        setGaugeData(results.map((entry) => entry.confidence));
       });
     }
   }, 500);
@@ -63,20 +61,13 @@ function App() {
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
+        <p>BebeProtector</p>
+
+        <GaugeChart data={gaugeData} />
+
         <button onClick={() => setShouldClassify(!shouldClassify)}>
-          {shouldClassify ? "Stop classifying" : "Start classifying"}
+          {shouldClassify ? "Dejar de monitorear" : "Empezar a Monitorear"}
         </button>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
         <video
           ref={videoRef}
           style={{ transform: "scale(-1, 1)" }}
@@ -86,6 +77,6 @@ function App() {
       </header>
     </div>
   );
-}
+};
 
 export default App;
