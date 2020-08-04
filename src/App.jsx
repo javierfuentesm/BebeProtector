@@ -5,7 +5,7 @@ import GaugeChart from "react-gauge-chart";
 import * as tmPose from "@teachablemachine/pose";
 import { Button } from "./styles/Button";
 // eslint-disable-next-line no-unused-vars
-import * as tf from '@tensorflow/tfjs'
+import * as tf from "@tensorflow/tfjs";
 
 let model, webcam, ctx;
 const App = () => {
@@ -23,7 +23,14 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (gaugeData[0]?.toFixed(2) >= 0.65) {
+    if (shouldClassify === false) {
+      alarmRef.current.pause();
+      alarmRef.current.currentTime = 0;
+    }
+  }, [shouldClassify]);
+
+  useEffect(() => {
+    if ((gaugeData[0]?.toFixed(2) >= 0.65)&& shouldClassify) {
       alarmRef.current.play();
     } else {
       alarmRef.current.pause();
@@ -87,7 +94,13 @@ const App = () => {
     <div className="App">
       <header className="App-header">
         <h1>
-          <span role="img" aria-label="baby">👶🏼</span>BebeProtector<span role="img" aria-label="biberon">🍼</span>
+          <span role="img" aria-label="baby">
+            👶🏼
+          </span>
+          BebeProtector
+          <span role="img" aria-label="biberon">
+            🍼
+          </span>
         </h1>
 
         <Button onClick={() => setShouldClassify(!shouldClassify)}>
