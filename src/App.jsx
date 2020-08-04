@@ -2,7 +2,6 @@ import React, { useRef, useEffect, useState } from "react";
 import "./App.css";
 import useInterval from "./hooks/useInterval";
 import GaugeChart from "react-gauge-chart";
-import * as tf from "@tensorflow/tfjs";
 import * as tmPose from "@teachablemachine/pose";
 import { Button } from "./styles/Button";
 
