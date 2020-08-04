@@ -1,81 +1,115 @@
 import React, { useRef, useEffect, useState } from "react";
-import logo from "./logo.svg";
 import "./App.css";
-import ml5 from "ml5";
 import useInterval from "./hooks/useInterval";
-import { GaugeChart } from "./components/GaugeChart";
+import GaugeChart from "react-gauge-chart";
+import * as tf from "@tensorflow/tfjs";
+import * as tmPose from "@teachablemachine/pose";
+import {Button} from "./styles/Button";
 
-let classifier;
-
+let model, webcam, ctx;
 const App = () => {
-  const videoRef = useRef(null);
+  const URL = "https://teachablemachine.withgoogle.com/models/mkRnTM-u-/";
+  const canvasRef = useRef(null);
+  const alarmRef = useRef(null);
   const [shouldClassify, setShouldClassify] = useState(false);
   const [gaugeData, setGaugeData] = useState([0.5, 0.5]);
 
   useEffect(() => {
-    startVideo();
-
+    startVideo().then((r) => console.log("Camara is ready"));
     return () => {
       stopVideo();
     };
   }, []);
 
-  const startVideo = () => {
-    classifier = ml5.imageClassifier("./my-model/model.json", () => {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices
-          .getUserMedia({ video: true, audio: false })
-          .then((stream) => {
-            videoRef.current.srcObject = stream;
-            videoRef.current.play();
-          });
-      }
-    });
+  useEffect(() => {
+    if (gaugeData[0]?.toFixed(2) >= 0.65) {
+      alarmRef.current.play();
+    } else {
+      alarmRef.current.pause();
+    }
+  }, [gaugeData]);
+
+  const startVideo = async () => {
+    const modelURL = URL + "model.json";
+    const metadataURL = URL + "metadata.json";
+    // load the model and metadata
+    // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+    // Note: the pose library adds a tmPose object to your window (window.tmPose)
+    model = await tmPose.load(modelURL, metadataURL);
+
+    // Convenience function to setup a webcam
+    const size = 300;
+    const flip = true; // whether to flip the webcam
+    webcam = new tmPose.Webcam(size, size, flip); // width, height, flip
+    await webcam.setup(); // request access to the webcam
+    await webcam.play();
+    const canvas = canvasRef.current;
+    canvas.width = size;
+    canvas.height = size;
+    ctx = canvas.getContext("2d");
   };
   const stopVideo = (e) => {
-    if (videoRef.current) {
-      let stream = videoRef.current.srcObject;
-      let tracks = stream.getTracks();
-
-      for (let i = 0; i < tracks.length; i++) {
-        const track = tracks[i];
-        track.stop();
-      }
-    }
-
-    videoRef.current.srcObject = null;
+    webcam.stop();
+    canvasRef.current.srcObject = null;
   };
 
-  useInterval(() => {
-    if (classifier && shouldClassify) {
-      classifier.classify(videoRef.current, (error, results) => {
-        if (error) {
-          console.error(error);
-          return;
-        }
-        results.sort((a, b) => b.label.localeCompare(a.label));
-        setGaugeData(results.map((entry) => entry.confidence));
-      });
+  useInterval(async () => {
+    if (webcam && shouldClassify) {
+      webcam.update(); // update the webcam frame
+      await predict();
     }
-  }, 500);
+  }, 10);
+
+  const predict = async () => {
+    // Prediction #1: run input through posenet
+    // estimatePose can take in an image, video or canvas html element
+    const { pose, posenetOutput } = await model.estimatePose(webcam.canvas);
+    // Prediction 2: run input through teachable machine classification model
+    const prediction = await model.predict(posenetOutput);
+    setGaugeData(prediction.map((entry) => entry.probability));
+    // finally draw the poses
+    drawPose(pose);
+  };
+
+  const drawPose = (pose) => {
+    if (webcam.canvas) {
+      ctx.drawImage(webcam.canvas, 0, 0);
+      // draw the keypoints and skeleton
+      if (pose) {
+        const minPartConfidence = 0.5;
+        tmPose.drawKeypoints(pose.keypoints, minPartConfidence, ctx);
+        tmPose.drawSkeleton(pose.keypoints, minPartConfidence, ctx);
+      }
+    }
+  };
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>BebeProtector</p>
-        <small>
-          [{gaugeData[0].toFixed(2)}, {gaugeData[1].toFixed(2)}]
-        </small>
-        <GaugeChart data={gaugeData} />
+        <h1>👶🏼 BebeProtector 🍼</h1>
 
-        <button onClick={() => setShouldClassify(!shouldClassify)}>
+        <Button onClick={() => setShouldClassify(!shouldClassify)}>
           {shouldClassify ? "Dejar de monitorear" : "Empezar a Monitorear"}
-        </button>
-        <video
-          ref={videoRef}
-          style={{ transform: "scale(-1, 1)" }}
-          width="300"
-          height="150"
+        </Button>
+
+        <canvas width="300" height="150" className="webcam" ref={canvasRef} />
+
+        {gaugeData[0].toFixed(2) >= 0.65 ? (
+          <h3>La posición podría ser peligrosa</h3>
+        ) : (
+          <h3>Todo parece estar bien</h3>
+        )}
+
+        <GaugeChart
+          id="gauge-chart4"
+          nrOfLevels={10}
+          arcPadding={0.1}
+          cornerRadius={5}
+          percent={+gaugeData[0].toFixed(2)}
+        />
+        <audio
+          ref={alarmRef}
+          src="./alarm-loud.mp3"
+          preload="auto"
         />
       </header>
     </div>

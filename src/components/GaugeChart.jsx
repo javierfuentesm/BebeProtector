@@ -20,8 +20,7 @@ export function GaugeChart({ data }) {
       .sort(null);
 
     const instructions = pieGenerator(data);
-    console.log(instructions)
-
+console.log(instructions)
     svg
       .selectAll(".slice")
       .data(instructions)
