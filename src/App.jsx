@@ -4,7 +4,7 @@ import useInterval from "./hooks/useInterval";
 import GaugeChart from "react-gauge-chart";
 import * as tf from "@tensorflow/tfjs";
 import * as tmPose from "@teachablemachine/pose";
-import {Button} from "./styles/Button";
+import { Button } from "./styles/Button";
 
 let model, webcam, ctx;
 const App = () => {
@@ -85,7 +85,9 @@ const App = () => {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>👶🏼 BebeProtector 🍼</h1>
+        <h1>
+          <span role="img" aria-label="baby">👶🏼</span>BebeProtector<span role="img" aria-label="biberon">🍼</span>
+        </h1>
 
         <Button onClick={() => setShouldClassify(!shouldClassify)}>
           {shouldClassify ? "Dejar de monitorear" : "Empezar a Monitorear"}
@@ -106,11 +108,7 @@ const App = () => {
           cornerRadius={5}
           percent={+gaugeData[0].toFixed(2)}
         />
-        <audio
-          ref={alarmRef}
-          src="./alarm-loud.mp3"
-          preload="auto"
-        />
+        <audio ref={alarmRef} src="./alarm-loud.mp3" preload="auto" />
       </header>
     </div>
   );
