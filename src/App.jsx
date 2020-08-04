@@ -4,6 +4,8 @@ import useInterval from "./hooks/useInterval";
 import GaugeChart from "react-gauge-chart";
 import * as tmPose from "@teachablemachine/pose";
 import { Button } from "./styles/Button";
+// eslint-disable-next-line no-unused-vars
+import * as tf from '@tensorflow/tfjs'
 
 let model, webcam, ctx;
 const App = () => {
