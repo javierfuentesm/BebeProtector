@@ -35,7 +35,7 @@ const App = () => {
     } else {
       alarmRef.current.pause();
     }
-  }, [gaugeData]);
+  }, [gaugeData, shouldClassify]);
 
   const startVideo = async () => {
     const modelURL = URL + "model.json";
