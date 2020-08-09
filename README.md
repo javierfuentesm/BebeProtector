@@ -7,7 +7,7 @@
 </p>
 
 > This project is meant to protect babies that sleep in a wrong position in order to prevent the known "Sudden infant death syndrome (SIDS)"
-I used TensorflowJS to detect the position of the baby and sound an alarm if the baby is sleeping in a dangerous position 
+I used TensorflowJS to detect the position of the baby and trigger an alarm if the baby is sleeping in a dangerous position.
 
 ### 🏠 [Homepage](https://bebeprotector.netlify.app)
 
