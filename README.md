@@ -30,7 +30,7 @@ npm run start
 
 👤 **Javier Fuentes Mora**
 
-* Website: https://github.com/javierfuentesm
+* Website: https://javierfuentesm.netlify.app
 * Twitter: [@javier\_mora94](https://twitter.com/javier_mora94)
 * Github: [@javierfuentesm](https://github.com/javierfuentesm)
 * LinkedIn: [@javier-fuentes-mora-7a0b86a7](https://linkedin.com/in/javier-fuentes-mora-7a0b86a7)
